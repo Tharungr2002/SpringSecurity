@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,8 +27,10 @@ public class StudentController {
 
     @PostMapping("/Register")
     public ResponseEntity<String> Register(@RequestBody Student student) {
-        studentService.registerStudent(student);
-        return ResponseEntity.ok("Student Registered Successfully");
+        if(studentService.registerStudent(student)) {
+            return ResponseEntity.ok("Student Registered Successfully");
+        }
+        return ResponseEntity.status(400).body("User ALready Exists");
     }
 
     @PostMapping("/login")
@@ -39,6 +42,11 @@ public class StudentController {
         else{
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ans);
         }
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<Student>> getAll() {
+        return ResponseEntity.ok(studentService.getAll());
     }
 
 }

@@ -4,9 +4,11 @@ import com.example.SpringSecurity.Model.Student;
 import com.example.SpringSecurity.Repo.StudentRepo;
 import com.example.SpringSecurity.SecurityConfig.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -20,10 +22,16 @@ public class StudentService {
     @Autowired
     PasswordEncoder passwordencoder;
 
-    public void registerStudent(Student student) {
-        String bcryptPassword = passwordencoder.encode(student.getPassword());
-        student.setPassword(bcryptPassword);
-        studentrepo.save(student);
+    public boolean registerStudent(Student student) {
+            Optional<Student> ExistingStudent =  studentrepo.findByUsername(student.getUsername());
+
+            if(ExistingStudent.isEmpty()) {
+                String bcryptPassword = passwordencoder.encode(student.getPassword());
+                student.setPassword(bcryptPassword);
+                studentrepo.save(student);
+                return true;
+            }
+            else return false;
     }
 
     public Map<String,String> verifystudent(Student student) {
@@ -43,5 +51,9 @@ public class StudentService {
 
         }
         return Map.of("Error","User not found");
+    }
+
+    public List<Student> getAll() {
+        return studentrepo.findAll();
     }
 }
