@@ -7,10 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class StudentService {
+    @Autowired
+    private jwtService jwtservice;
 
     @Autowired
     StudentRepo studentrepo;
@@ -23,16 +26,22 @@ public class StudentService {
         studentrepo.save(student);
     }
 
-    public boolean verifystudent(Student student) {
+    public Map<String,String> verifystudent(Student student) {
         String realPassword = student.getPassword();
-        int studentId = student.getId();
-        Optional<Student> optionalStudent = studentrepo.findById(studentId);
-        if(optionalStudent != null) {
-            passwordencoder.matches(realPassword,optionalStudent.get().getPassword());
+        String username = student.getUsername();
+        try {
+            Optional<Student> optionalStudent = studentrepo.findByUsername(username);
+            String token = null;
+            if (optionalStudent != null) {
+                if (passwordencoder.matches(realPassword, optionalStudent.get().getPassword())) {
+                    token = jwtservice.generateToken(student.getUsername());
+                    return Map.of("jwt", token);
+                }
+            }
+        }catch(Exception e){
+            return Map.of("Error",e.getMessage());
+
         }
-        else {
-            return false;
-        }
-        return true;
+        return Map.of("Error","User not found");
     }
 }

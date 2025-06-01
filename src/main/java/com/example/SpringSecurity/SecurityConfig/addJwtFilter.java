@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,7 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 
-@Service
+@Component
 public class addJwtFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -38,11 +39,13 @@ public class addJwtFilter extends OncePerRequestFilter {
         if(authHeader != null && authHeader.startsWith("Bearer ")) {
              extractedtoken = authHeader.substring(7);
             username = jwtservice.extractFromToken(extractedtoken);
+            System.out.println(username);
         }
 
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             Optional<Student> student = studentrepo.findByUsername(username);
+            System.out.println(student.toString());
 
             if(student.isPresent() && jwtservice.validateToken(extractedtoken)) {
                 UsernamePasswordAuthenticationToken auth = new
@@ -51,7 +54,7 @@ public class addJwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request,response);
     }
 
 }

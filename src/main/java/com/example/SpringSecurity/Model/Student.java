@@ -13,12 +13,19 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 public class Student {
-    private String name;
+    private String username;
     private String password;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-
+    @Override
+    public String toString() {
+        return "Student{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", id=" + id +
+                '}';
+    }
 }
